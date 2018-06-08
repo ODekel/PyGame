@@ -28,7 +28,7 @@ def main():
     #    pygame.time.Clock().tick(fps)
     #    pygame.display.flip()
     # wait_keyboard(pygame.K_SPACE)
-    pygame.quit()
+    # pygame.quit()
 
 
 def game_with_game_class(ip):
@@ -48,9 +48,13 @@ def game_with_game_class(ip):
     my_game = Game(screen, gamemap, hero, allies, enemies, server)
     my_game.connect_to_server()
     threading.Thread(target=my_game.handle_movement_online).start()
-    while True:
+    while not my_game.exit:
         my_game.utilities()
+        pygame.time.Clock().tick(my_game.fps)
         # my_game.update_screen()
+    print("KGKGKGKGK")
+    for t in threading.enumerate():
+        print(t)
 
 
 def start_pygame(resolution, flags, depth, caption="PyGame"):

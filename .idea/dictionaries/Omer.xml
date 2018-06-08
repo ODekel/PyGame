@@ -11,6 +11,7 @@
       <w>charmap</w>
       <w>cooldown</w>
       <w>gamemap</w>
+      <w>getdefaulttimeout</w>
       <w>heroposx</w>
       <w>heroposy</w>
       <w>keydown</w>

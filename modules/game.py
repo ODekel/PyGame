@@ -16,6 +16,7 @@ class Game(object):
 
     ally_team = "ALLIES"
     enemy_team = "ENEMIES"
+    FUNCTION_KEYS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
 
     def __init__(self, screen, game_map, hero, allies, enemies, server_socket=None):
         """Create a new game object.
@@ -41,10 +42,17 @@ class Game(object):
         self._lowery = self.screen.get_height() / 2
         self.fps = get_refresh_rate(win32api.EnumDisplayDevices())
         self.server_socket = server_socket
-        self.timeout = None
+        self.timeout = 0.1
         self.__recv = False  # Turns to False when the client stops communicating with the server.
         self.__send = False  # Turns to False when the client stops communicating with the server.
         pygame.register_quit(self.quit_func)
+        # self.__inactive_timeout = None
+        self.__exit = False
+
+    @property
+    def exit(self):
+        """If True, program should exit."""
+        return self.__exit
 
     def __sendd(self, s):
         """
@@ -78,8 +86,14 @@ class Game(object):
         :param header_size: The size (in bytes) of the header.
         :return: The string received.
         """
-        size = int(self.server_socket.recv(header_size))
-        return self.server_socket.recv(size)
+        str_size = ""
+        while len(str_size) < header_size:
+            str_size += self.server_socket.recv(header_size - len(str_size))
+        size = int(str_size)
+        data = ""
+        while len(data) < size:
+            data += self.server_socket.recv(size - len(data))
+        return data
 
     def handle_user_input(self):
         """Handles the used input for all keyboard, mouse and other keys. Changes the x and y of hero.rect.
@@ -131,8 +145,8 @@ class Game(object):
         if self.__recvd(7) != "ENEMIES":
             return False
         lst_enemies = pickle.loads(self.__recv_by_size(32))
-        self._fix_team_image(lst_allies, Game.ally_team)
-        self._fix_team_image(lst_enemies, Game.enemy_team)
+        Game._fix_team_image(lst_allies, Game.ally_team)
+        Game._fix_team_image(lst_enemies, Game.enemy_team)
         self.allies = pygame.sprite.OrderedUpdates(*lst_allies)
         self.enemies = pygame.sprite.OrderedUpdates(*lst_enemies)
         if self.__recvd(8) != "HERO POS":
@@ -142,11 +156,6 @@ class Game(object):
         except ValueError:
             return False
         return True
-
-    def _fix_team_image(self, chars, team):
-        """calls Game.get_team_image on each character in chars, with team as parameter."""
-        for char in chars:
-            char.image = Game.get_team_image(team)
 
     def handle_movement_online(self):
         """
@@ -177,7 +186,7 @@ class Game(object):
             if event.type == pygame.QUIT:
                 self.stop_online_connection()
                 pygame.quit()
-                sys.exit(0)
+                # sys.exit(0)
 
     def __handle_pressed_online(self):
         """
@@ -190,15 +199,30 @@ class Game(object):
         cnt = 0
         while self.__send:
             try:
-                pressed = pygame.key.get_pressed()
-                if True in pressed:    # No need to send if nothing is pressed
-                    self.__send_by_size(pickle.dumps(pressed), 32)
+                # pressed = pygame.key.get_pressed()
+                functional = Game._functional_keys_dict(pygame.key.get_pressed())
+                if functional is not None:    # No need to send if nothing is pressed
+                    self.__send_by_size(pickle.dumps(functional), 32)
                     debug_print("sent: ", str(cnt))
                     cnt += 1
+            except socket.timeout:
+                Game._exit_msg("You were inactive for too long, and kicked out of the game.")
             except socket.error:
                 debug_print("Error on sending.")
                 Game._exit_msg("Communication error.")
             pygame.time.Clock().tick(self.fps)
+
+    @staticmethod
+    def _functional_keys_dict(pressed):
+        """Returns a dictionary with only the functional keys, True or False."""
+        one_true = False
+        functional = {}
+        for key in Game.FUNCTION_KEYS:
+            key_bool = pressed[key]
+            if key_bool:
+                one_true = True
+            functional[key] = key_bool
+        return functional if one_true else None
 
     def __handle_receiving_updates(self):
         """
@@ -216,12 +240,20 @@ class Game(object):
                 debug_print("recv: ", str(cnt))
                 debug_print(info)
                 cnt += 1
+                self._handle_online_info(info)
+                self.update_screen()
+            except socket.timeout:
+                pass    # Constantly to running smoothly.
             except (TypeError, socket.error):
                 debug_print("Error on receiving.")
                 debug_print(info)
                 Game._exit_msg("Communication Error.")
-            self._handle_online_info(info)
-            self.update_screen()
+            except pygame.error:
+                break   # Game quit.
+            try:
+                self._handle_events()
+            except pygame.error:
+                pass   # Game quit.
 
     def _handle_online_info(self, info):
         """Handles the info received from he server."""
@@ -271,6 +303,12 @@ class Game(object):
                 self.enemies.add(char)
 
     @staticmethod
+    def _fix_team_image(chars, team):
+        """calls Game.get_team_image on each character in chars, with team as parameter."""
+        for char in chars:
+            char.image = Game.get_team_image(team)
+
+    @staticmethod
     def get_team_image(team):
         """Updates the image of the character."""
         return pygame.image.load("assets\\" + team + "_player.png").convert_alpha()
@@ -280,7 +318,7 @@ class Game(object):
         Call this function when the game stops connection to the server for any reason."""
         try:
             if self.__send:
-                self.server_socket.sendall("DISCONNECT")
+                self.__send_by_size("DISCONNECT", 32)
         except socket.error:
             pass
         self.__recv = False
@@ -322,7 +360,6 @@ class Game(object):
         self.screen.blit(self.__game_map.subsurface(pygame.Rect(screen_left, screen_top, self.screen.get_width(),
                                                     self.screen.get_height())), (0, 0))
         pygame.display.flip()
-        self._handle_events()
         # UPDATE SO IT DOESN'T FLIP THE SCREEN WHEN NOT NEEDED.
         # if self.__heroposx == self.hero.rect.centerx and self.__heroposy == self.hero.rect.centery:
         #     # #self.screen.blit(self.__minimap.subsurface((screen_left, screen_top,
@@ -384,7 +421,7 @@ class Game(object):
         """Connect to the game's server using the sock provided,
         which must already be TCP connected to the server connection port.
         Returns a socket.socket object that is TCP connected to the game server."""
-        self.server_socket.settimeout(self.timeout)
+        # self.server_socket.settimeout(self.timeout)
         try:
             if self.server_socket.recv(11) != "GAME SERVER":
                 raise socket.error
@@ -446,13 +483,22 @@ class Game(object):
             if not self.__recvd(6) == "OK END":
                 self.stop_online_connection()
                 return False
-            self.__sendd("MAP NAME")
-            map_name = self.__recv_by_size(32)
-            self._update_map(map_name)
+            self.__get_map_name()
+            # self.__get_inactive_timeout()
             return True
         except socket.error:
             self.stop_online_connection()
             Game._exit_msg("Could not connect to server.")
+
+    def __get_map_name(self):
+        """Part of the info_for_server method, initializes the map."""
+        self.__sendd("MAP NAME")
+        map_name = self.__recv_by_size(32)
+        self._update_map(map_name)
+
+    # def __get_inactive_timeout(self):
+    #     self.__sendd("INACTIVE TIMEOUT")
+    #     self.__inactive_timeout = self.__recv_by_size(32)
 
     def _update_map(self, map_name):
         """Updates the map of the game from 'assets'."""
@@ -462,15 +508,21 @@ class Game(object):
     @staticmethod
     def _exit_msg(msg):
         """Displays the message and waits for Enter press to exit."""
+        print(msg)
         pygame.quit()
-        raw_input(msg + " Press Enter to exit.")
+        raw_input("Press Enter to exit.")
         sys.exit(0)
 
     def quit_func(self):
         """Function to call when quitting pygame"""
         self.stop_online_connection()
+        debug_print("Exiting")
+        pygame.display.quit()
         pygame.quit()
-        sys.exit(0)
+        self.__exit = True
+        # e = Exception
+        # e.message = "System Exiting"
+        # raise e
 
 
 def debug_print(*s):
