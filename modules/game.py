@@ -1,7 +1,6 @@
 import pygame
 import math
 import socket
-import sys
 import threading
 import pickle
 import win32api
@@ -17,6 +16,7 @@ class Game(object):
     ally_team = "ALLIES"
     enemy_team = "ENEMIES"
     FUNCTION_KEYS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
+    SERVER_KICK_MSG = "PLAYER KICKED"
 
     def __init__(self, screen, game_map, hero, allies, enemies, server_socket=None):
         """Create a new game object.
@@ -208,9 +208,9 @@ class Game(object):
             except socket.timeout:
                 Game._exit_msg("You were inactive for too long, and kicked out of the game.")
             except socket.error:
-                debug_print("Error on sending.")
-                Game._exit_msg("Communication error.")
-            pygame.time.Clock().tick(self.fps)
+                self.__handle_send_socket_error()
+            else:
+                pygame.time.Clock().tick(self.fps)
 
     @staticmethod
     def _functional_keys_dict(pressed):
@@ -234,7 +234,6 @@ class Game(object):
         self.server_socket.settimeout(self.timeout)
         cnt = 0
         while self.__recv:
-            info = None
             try:
                 info = self.__recv_by_size(32)
                 debug_print("recv: ", str(cnt))
@@ -243,25 +242,35 @@ class Game(object):
                 self._handle_online_info(info)
                 self.update_screen()
             except socket.timeout:
-                pass    # Constantly to running smoothly.
+                pass    # Constantly to keep running smoothly.
             except (TypeError, socket.error):
-                debug_print("Error on receiving.")
-                debug_print(info)
-                Game._exit_msg("Communication Error.")
-            except pygame.error:
-                break   # Game quit.
-            try:
-                self._handle_events()
+                self.__handle_recv_socket_error()
             except pygame.error:
                 pass   # Game quit.
+            else:
+                try:
+                    self._handle_events()
+                except pygame.error:
+                    pass   # Game quit.
 
     def _handle_online_info(self, info):
         """Handles the info received from he server."""
+        Game._online_info_check_end(info)
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
             group, pos, map_pos = Game.__character_info_online(line)
             self.__handle_character_info_online(group, pos, map_pos)
         debug_print("ALLIES:\n", str(self.allies.sprites()))
         debug_print("ENEMIES:\n", str(self.enemies.sprites()))
+
+    @staticmethod
+    def _online_info_check_end(info):
+        """Checked if the server ended the game/kicked the player, and handles it."""
+        try:
+            if info[:len(Game.SERVER_KICK_MSG)] == Game.SERVER_KICK_MSG:    # Server kicked player.
+                Game.handle_end_game(info.split("~")[1])
+                return True
+        except IndexError:
+            return False
 
     @staticmethod
     def __character_info_online(info):
@@ -302,6 +311,20 @@ class Game(object):
                 char.image = Game.get_team_image(Game.ally_team)
                 self.enemies.add(char)
 
+    def __handle_recv_socket_error(self):
+        """When there's a socket error on __handle_receiving_updates, this function handles it."""
+        if not self.__recv:
+            return
+        debug_print("Error on receiving.")
+        Game._exit_msg("Communication Error.")
+
+    def __handle_send_socket_error(self):
+        """When there's a socket error on __handle_pressed_online, this function handles it."""
+        if not self.__send:
+            return
+        debug_print("Error on sending.")
+        Game._exit_msg("Communication error.")
+
     @staticmethod
     def _fix_team_image(chars, team):
         """calls Game.get_team_image on each character in chars, with team as parameter."""
@@ -312,17 +335,6 @@ class Game(object):
     def get_team_image(team):
         """Updates the image of the character."""
         return pygame.image.load("assets\\" + team + "_player.png").convert_alpha()
-
-    def stop_online_connection(self):
-        """Stops the client from communicating with the server.
-        Call this function when the game stops connection to the server for any reason."""
-        try:
-            if self.__send:
-                self.__send_by_size("DISCONNECT", 32)
-        except socket.error:
-            pass
-        self.__recv = False
-        self.__send = False
 
     def _updatex(self, newx):
         """Returns value of hero's x based on newx and limits of map."""
@@ -506,12 +518,25 @@ class Game(object):
         self.__minimap = pygame.image.load("assets\\" + map_name).convert()
 
     @staticmethod
+    def handle_end_game(msg):
+        """Ends the game in an organized way."""
+        Game._exit_msg(msg)
+
+    def stop_online_connection(self):
+        """Stops the client from communicating with the server.
+        Call this function when the game stops connection to the server for any reason."""
+        try:
+            self.__send_by_size("DISCONNECT", 32)
+        except socket.error:
+            pass
+        self.__recv = False
+        self.__send = False
+
+    @staticmethod
     def _exit_msg(msg):
         """Displays the message and waits for Enter press to exit."""
-        print(msg)
         pygame.quit()
-        raw_input("Press Enter to exit.")
-        sys.exit(0)
+        raw_input("%s. Press Enter to exit." % msg)
 
     def quit_func(self):
         """Function to call when quitting pygame"""
