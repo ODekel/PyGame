@@ -83,13 +83,19 @@ class Game(object):
     def __recv_by_size(self, header_size):
         """
         Receive by size a string from the client.
+        If an empty string is received (ie, the other side disconnected), an empty string will be returned.
         :param header_size: The size (in bytes) of the header.
         :return: The string received.
         """
         str_size = ""
+        str_size += self.server_socket.recv(header_size)
+        if str_size == "":
+            return ""
+
         while len(str_size) < header_size:
             str_size += self.server_socket.recv(header_size - len(str_size))
         size = int(str_size)
+
         data = ""
         while len(data) < size:
             data += self.server_socket.recv(size - len(data))
