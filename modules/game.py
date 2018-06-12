@@ -255,7 +255,8 @@ class Game(object):
 
     def _handle_online_info(self, info):
         """Handles the info received from he server."""
-        Game._online_info_check_end(info)
+        if Game._online_info_check_end(info):
+            raise pygame.error  # End the loop if Player is kicked out of the game.
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
             group, pos, map_pos = Game.__character_info_online(line)
             self.__handle_character_info_online(group, pos, map_pos)
@@ -264,13 +265,15 @@ class Game(object):
 
     @staticmethod
     def _online_info_check_end(info):
-        """Checked if the server ended the game/kicked the player, and handles it."""
+        """Checked if the server ended the game/kicked the player, and handles it.
+        Returns True if Player was kicked from the server, False otherwise, or if error syntax is wrong."""
         try:
             if info[:len(Game.SERVER_KICK_MSG)] == Game.SERVER_KICK_MSG:    # Server kicked player.
                 Game.handle_end_game(info.split("~")[1])
                 return True
         except IndexError:
             return False
+        return False
 
     @staticmethod
     def __character_info_online(info):
@@ -520,12 +523,14 @@ class Game(object):
     @staticmethod
     def handle_end_game(msg):
         """Ends the game in an organized way."""
+        # pygame.quit()
         Game._exit_msg(msg)
 
     def stop_online_connection(self):
         """Stops the client from communicating with the server.
         Call this function when the game stops connection to the server for any reason."""
         try:
+            self.server_socket.settimeout(self.timeout)
             self.__send_by_size("DISCONNECT", 32)
         except socket.error:
             pass
