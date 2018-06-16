@@ -264,8 +264,7 @@ class Game(object):
         if Game._online_info_check_end(info):
             raise pygame.error  # End the loop if Player is kicked out of the game.
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
-            group, pos, map_pos = Game.__character_info_online(line)
-            self.__handle_character_info_online(group, pos, map_pos)
+            self.__handle_character_info_online(line)
         debug_print("ALLIES:\n", str(self.allies.sprites()))
         debug_print("ENEMIES:\n", str(self.enemies.sprites()))
 
@@ -281,44 +280,66 @@ class Game(object):
             return False
         return False
 
-    @staticmethod
-    def __character_info_online(info):
+    def __handle_character_info_online(self, info):
         """Gets the info (line) on a character as received from the server, and returns (group, pos, map_pos)"""
-        words = info.split("~")
-        group = words[0]
-        pos = None
-        if group != "HERO":
-            pos = words[1]
-            map_pos = words[2]
-        else:
-            map_pos = words[1]
-        return group, pos, map_pos
+        parts = info.split("~")
+        action = parts[0]
+        if action == "UPDATE":
+            self.__change_character_attribute(*parts[1:])
+        elif action == "ADD":
+            self.__add_character(*parts[1:])
+        elif action == "REMOVE":
+            self.__remove_character(*parts[1:])
 
-    def __handle_character_info_online(self, group, pos, map_pos):
-        """Changes the Game class attributes according to the info about the character received from the server."""
-        # Always receives the center of the rect of the character it is repositioning.
-        if group == "HERO":
-            self.hero.rect.center = pickle.loads(map_pos)
-        elif group == "ALLIES":
-            if isint(pos):
-                if map_pos == "REMOVE":
-                    self.allies.sprites()[int(pos)].kill()
-                else:
-                    self.allies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-            elif pos == "ADD":
-                char = pickle.loads(map_pos)
-                char.image = Game.get_team_image(Game.ally_team)
-                self.allies.add(char)
-        elif group == "ENEMIES":
-            if isint(pos):
-                if map_pos == "REMOVE":
-                    self.enemies.sprites()[int(pos)].kill()
-                else:
-                    self.enemies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-            elif pos == "ADD":
-                char = pickle.loads(map_pos)
-                char.image = Game.get_team_image(Game.ally_team)
-                self.enemies.add(char)
+    # def __handle_character_info_online(self, group, pos, map_pos):
+    #     """Changes the Game class attributes according to the info about the character received from the server."""
+    #     # Always receives the center of the rect of the character it is repositioning.
+    #     if group == "HERO":
+    #         self.hero.rect.center = pickle.loads(map_pos)
+    #     elif group == "ALLIES":
+    #         if isint(pos):
+    #             if map_pos == "REMOVE":
+    #                 self.allies.sprites()[int(pos)].kill()
+    #             else:
+    #                 self.allies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
+    #         elif pos == "ADD":
+    #             char = pickle.loads(map_pos)
+    #             char.image = Game.get_team_image(Game.ally_team)
+    #             self.allies.add(char)
+    #     elif group == "ENEMIES":
+    #         if isint(pos):
+    #             if map_pos == "REMOVE":
+    #                 self.enemies.sprites()[int(pos)].kill()
+    #             else:
+    #                 self.enemies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
+    #         elif pos == "ADD":
+    #             char = pickle.loads(map_pos)
+    #             char.image = Game.get_team_image(Game.ally_team)
+    #             self.enemies.add(char)
+
+    def __change_character_attribute(self, side, index, attribute, value):
+        """Change a character's attribute according to data received from the server."""
+        if side == Game.ally_team:
+            setattr(self.allies.sprites()[int(index)], attribute, value)
+        else:
+            setattr(self.enemies.sprites()[int(index)], attribute, value)
+
+    def __add_character(self, side, pickled_character):
+        """Adds a character to the game according to data received from the server."""
+        character = pickle.loads(pickled_character)
+        if side == Game.ally_team:
+            character.image = Game.get_team_image(Game.ally_team)
+            self.allies.add(character)
+        else:
+            character.image = Game.get_team_image(Game.enemy_team)
+            self.enemies.add(character)
+
+    def __remove_character(self, side, index):
+        """Removes a character from the game according to data received from the server."""
+        if side == Game.ally_team:
+            self.allies.sprites()[int(index)].kill()
+        else:
+            self.enemies.sprites()[int(index)].kill()
 
     def __handle_recv_socket_error(self):
         """When there's a socket error on __handle_receiving_updates, this function handles it."""
