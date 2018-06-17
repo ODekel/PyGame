@@ -249,7 +249,7 @@ class Game(object):
                 self.update_screen()
             except socket.timeout:
                 pass    # Constantly to keep running smoothly.
-            except (TypeError, socket.error):
+            except (TypeError, socket.error) as e:
                 self.__handle_recv_socket_error()
             except pygame.error:
                 pass   # Game quit.
@@ -285,9 +285,9 @@ class Game(object):
         parts = info.split("~")
         action = parts[0]
         if action == "UPDATE":
-            self.__change_character_attribute(*parts[1:])
+            self.__change_character_attribute(parts[1], parts[2], parts[3], "".join(parts[4:]))
         elif action == "ADD":
-            self.__add_character(*parts[1:])
+            self.__add_character(parts[1], "".join(parts[2:]))
         elif action == "REMOVE":
             self.__remove_character(*parts[1:])
 
@@ -317,12 +317,12 @@ class Game(object):
     #             char.image = Game.get_team_image(Game.ally_team)
     #             self.enemies.add(char)
 
-    def __change_character_attribute(self, side, index, attribute, value):
+    def __change_character_attribute(self, side, index, attribute, pickled_value):
         """Change a character's attribute according to data received from the server."""
         if side == Game.ally_team:
-            setattr(self.allies.sprites()[int(index)], attribute, value)
+            setattr(self.allies.sprites()[int(index)], attribute, pickle.loads(pickled_value))
         else:
-            setattr(self.enemies.sprites()[int(index)], attribute, value)
+            setattr(self.enemies.sprites()[int(index)], attribute, pickle.loads(pickled_value))
 
     def __add_character(self, side, pickled_character):
         """Adds a character to the game according to data received from the server."""
