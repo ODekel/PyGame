@@ -29,7 +29,7 @@ class Game(object):
         self.fps is an automatically calculated refresh rate of the screen (might not work for multi-screen setups).
         You can change it as you like or not use it at all by passing vsync=False to update_screen.
         server_socket is the socket of the server for online games.
-        If provided, game_map might change."""
+        If provided, game_map might change according to the server."""
         self.screen = screen
         self.__game_map = pygame.image.load(game_map).convert()
         self.hero = hero
@@ -184,6 +184,7 @@ class Game(object):
 
     def utilities(self):
         """Must be called in a non-ending loop."""
+        self.update_screen()
         self._handle_events()
 
     def _handle_events(self):
@@ -246,10 +247,9 @@ class Game(object):
                 debug_print(info)
                 cnt += 1
                 self._handle_online_info(info)
-                self.update_screen()
             except socket.timeout:
                 pass    # Constantly to keep running smoothly.
-            except (TypeError, socket.error) as e:
+            except (TypeError, socket.error):
                 self.__handle_recv_socket_error()
             except pygame.error:
                 pass   # Game quit.
@@ -285,9 +285,9 @@ class Game(object):
         parts = info.split("~")
         action = parts[0]
         if action == "UPDATE":
-            self.__change_character_attribute(parts[1], parts[2], parts[3], "".join(parts[4:]))
+            self.__change_character_attribute(parts[1], parts[2], parts[3], "~".join(parts[4:]))
         elif action == "ADD":
-            self.__add_character(parts[1], "".join(parts[2:]))
+            self.__add_character(parts[1], "~".join(parts[2:]))
         elif action == "REMOVE":
             self.__remove_character(*parts[1:])
 

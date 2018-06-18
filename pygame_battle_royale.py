@@ -51,7 +51,6 @@ def game_with_game_class(ip):
     while not my_game.exit:
         my_game.utilities()
         pygame.time.Clock().tick(my_game.fps)
-        # my_game.update_screen()
     print("KGKGKGKGK")
     for t in threading.enumerate():
         print(t)
