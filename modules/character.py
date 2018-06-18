@@ -6,7 +6,8 @@ import copy
 class Character(pygame.sprite.Sprite):
     """A character in a pygame game. Inherits from pygame.sprite.Sprite.
     If you want to update the Character's position on a map, update using Character.rect."""
-    def __init__(self, visual, health, speed, damage, attack_range, attack_speed, death_timer, abilities, center):
+
+    def __init__(self, visual, health, speed, damage, attack_range, attack_speed, death_timer, abilities, location):
         """Create a new game character.
         'visual' is an image file (will be converted_alpha, so transparent background is supported).
         'health' and 'damage' are integers.
@@ -20,7 +21,7 @@ class Character(pygame.sprite.Sprite):
         'center' is where the center of the character will be on the game's map."""
         super(Character, self).__init__()
         self.image = pygame.image.load(visual).convert_alpha()
-        self.rect = self.image.get_rect(center=center)
+        self.rect = self.image.get_rect(center=location)
         self.health = health
         self.speed = speed
         self.damage = damage
@@ -28,6 +29,14 @@ class Character(pygame.sprite.Sprite):
         self.attack_speed = attack_speed
         self.death_timer = death_timer
         self.abilities = abilities
+
+    @property
+    def location(self):    # A simpler way of changing the character's location.
+        return self.rect.center
+
+    @location.setter
+    def location(self, value):    # A simpler way of changing the character's location.
+        self.rect.center = value
 
     def pickled_no_image(self):
         """Returns a string with the Character object pickled but image is set to None

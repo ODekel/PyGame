@@ -1,7 +1,6 @@
 import pygame
 import math
 import socket
-import sys
 import threading
 import pickle
 import win32api
@@ -17,6 +16,7 @@ class Game(object):
     ally_team = "ALLIES"
     enemy_team = "ENEMIES"
     FUNCTION_KEYS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
+    SERVER_KICK_MSG = "PLAYER KICKED"
 
     def __init__(self, screen, game_map, hero, allies, enemies, server_socket=None):
         """Create a new game object.
@@ -29,7 +29,7 @@ class Game(object):
         self.fps is an automatically calculated refresh rate of the screen (might not work for multi-screen setups).
         You can change it as you like or not use it at all by passing vsync=False to update_screen.
         server_socket is the socket of the server for online games.
-        If provided, game_map might change."""
+        If provided, game_map might change according to the server."""
         self.screen = screen
         self.__game_map = pygame.image.load(game_map).convert()
         self.hero = hero
@@ -83,13 +83,19 @@ class Game(object):
     def __recv_by_size(self, header_size):
         """
         Receive by size a string from the client.
+        If an empty string is received (ie, the other side disconnected), an empty string will be returned.
         :param header_size: The size (in bytes) of the header.
         :return: The string received.
         """
         str_size = ""
+        str_size += self.server_socket.recv(header_size)
+        if str_size == "":
+            return ""
+
         while len(str_size) < header_size:
             str_size += self.server_socket.recv(header_size - len(str_size))
         size = int(str_size)
+
         data = ""
         while len(data) < size:
             data += self.server_socket.recv(size - len(data))
@@ -178,6 +184,7 @@ class Game(object):
 
     def utilities(self):
         """Must be called in a non-ending loop."""
+        self.update_screen()
         self._handle_events()
 
     def _handle_events(self):
@@ -202,15 +209,15 @@ class Game(object):
                 # pressed = pygame.key.get_pressed()
                 functional = Game._functional_keys_dict(pygame.key.get_pressed())
                 if functional is not None:    # No need to send if nothing is pressed
-                    self.__send_by_size(pickle.dumps(functional), 32)
+                    self.__send_by_size(pickle.dumps(functional, pickle.HIGHEST_PROTOCOL), 32)
                     debug_print("sent: ", str(cnt))
                     cnt += 1
             except socket.timeout:
                 Game._exit_msg("You were inactive for too long, and kicked out of the game.")
             except socket.error:
-                debug_print("Error on sending.")
-                Game._exit_msg("Communication error.")
-            pygame.time.Clock().tick(self.fps)
+                self.__handle_send_socket_error()
+            else:
+                pygame.time.Clock().tick(self.fps)
 
     @staticmethod
     def _functional_keys_dict(pressed):
@@ -234,73 +241,119 @@ class Game(object):
         self.server_socket.settimeout(self.timeout)
         cnt = 0
         while self.__recv:
-            info = None
             try:
                 info = self.__recv_by_size(32)
                 debug_print("recv: ", str(cnt))
                 debug_print(info)
                 cnt += 1
                 self._handle_online_info(info)
-                self.update_screen()
             except socket.timeout:
-                pass    # Constantly to running smoothly.
+                pass    # Constantly to keep running smoothly.
             except (TypeError, socket.error):
-                debug_print("Error on receiving.")
-                debug_print(info)
-                Game._exit_msg("Communication Error.")
-            except pygame.error:
-                break   # Game quit.
-            try:
-                self._handle_events()
+                self.__handle_recv_socket_error()
             except pygame.error:
                 pass   # Game quit.
+            else:
+                try:
+                    self._handle_events()
+                except pygame.error:
+                    pass   # Game quit.
 
     def _handle_online_info(self, info):
         """Handles the info received from he server."""
+        if Game._online_info_check_end(info):
+            raise pygame.error  # End the loop if Player is kicked out of the game.
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
-            group, pos, map_pos = Game.__character_info_online(line)
-            self.__handle_character_info_online(group, pos, map_pos)
-        debug_print("ALLIES:\n", str(self.allies.sprites()))
-        debug_print("ENEMIES:\n", str(self.enemies.sprites()))
+            self.__handle_character_info_online(line)
+        # debug_print("ALLIES:\n", str(self.allies.sprites()))
+        # debug_print("ENEMIES:\n", str(self.enemies.sprites()))
 
     @staticmethod
-    def __character_info_online(info):
-        """Gets the info (line) on a character as received from the server, and returns (group, pos, map_pos)"""
-        words = info.split("~")
-        group = words[0]
-        pos = None
-        if group != "HERO":
-            pos = words[1]
-            map_pos = words[2]
-        else:
-            map_pos = words[1]
-        return group, pos, map_pos
+    def _online_info_check_end(info):
+        """Checked if the server ended the game/kicked the player, and handles it.
+        Returns True if Player was kicked from the server, False otherwise, or if error syntax is wrong."""
+        try:
+            if info[:len(Game.SERVER_KICK_MSG)] == Game.SERVER_KICK_MSG:    # Server kicked player.
+                Game.handle_end_game(info.split("~")[1])
+                return True
+        except IndexError:
+            return False
+        return False
 
-    def __handle_character_info_online(self, group, pos, map_pos):
-        """Changes the Game class attributes according to the info about the character received from the server."""
-        # Always receives the center of the rect of the character it is repositioning.
-        if group == "HERO":
-            self.hero.rect.center = pickle.loads(map_pos)
-        elif group == "ALLIES":
-            if isint(pos):
-                if map_pos == "REMOVE":
-                    self.allies.sprites()[int(pos)].kill()
-                else:
-                    self.allies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-            elif pos == "ADD":
-                char = pickle.loads(map_pos)
-                char.image = Game.get_team_image(Game.ally_team)
-                self.allies.add(char)
-        elif group == "ENEMIES":
-            if isint(pos):
-                if map_pos == "REMOVE":
-                    self.enemies.sprites()[int(pos)].kill()
-                else:
-                    self.enemies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-            elif pos == "ADD":
-                char = pickle.loads(map_pos)
-                char.image = Game.get_team_image(Game.ally_team)
-                self.enemies.add(char)
+    def __handle_character_info_online(self, info):
+        """Gets the info (line) on a character as received from the server, and returns (group, pos, map_pos)"""
+        parts = info.split("~")
+        action = parts[0]
+        if action == "UPDATE":
+            self.__change_character_attribute(parts[1], parts[2], parts[3], "~".join(parts[4:]))
+        elif action == "ADD":
+            self.__add_character(parts[1], "~".join(parts[2:]))
+        elif action == "REMOVE":
+            self.__remove_character(*parts[1:])
+
+    # def __handle_character_info_online(self, group, pos, map_pos):
+    #     """Changes the Game class attributes according to the info about the character received from the server."""
+    #     # Always receives the center of the rect of the character it is repositioning.
+    #     if group == "HERO":
+    #         self.hero.rect.center = pickle.loads(map_pos)
+    #     elif group == "ALLIES":
+    #         if isint(pos):
+    #             if map_pos == "REMOVE":
+    #                 self.allies.sprites()[int(pos)].kill()
+    #             else:
+    #                 self.allies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
+    #         elif pos == "ADD":
+    #             char = pickle.loads(map_pos)
+    #             char.image = Game.get_team_image(Game.ally_team)
+    #             self.allies.add(char)
+    #     elif group == "ENEMIES":
+    #         if isint(pos):
+    #             if map_pos == "REMOVE":
+    #                 self.enemies.sprites()[int(pos)].kill()
+    #             else:
+    #                 self.enemies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
+    #         elif pos == "ADD":
+    #             char = pickle.loads(map_pos)
+    #             char.image = Game.get_team_image(Game.ally_team)
+    #             self.enemies.add(char)
+
+    def __change_character_attribute(self, side, index, attribute, pickled_value):
+        """Change a character's attribute according to data received from the server."""
+        if side == Game.ally_team:
+            setattr(self.allies.sprites()[int(index)], attribute, pickle.loads(pickled_value))
+        else:
+            setattr(self.enemies.sprites()[int(index)], attribute, pickle.loads(pickled_value))
+
+    def __add_character(self, side, pickled_character):
+        """Adds a character to the game according to data received from the server."""
+        character = pickle.loads(pickled_character)
+        if side == Game.ally_team:
+            character.image = Game.get_team_image(Game.ally_team)
+            self.allies.add(character)
+        else:
+            character.image = Game.get_team_image(Game.enemy_team)
+            self.enemies.add(character)
+
+    def __remove_character(self, side, index):
+        """Removes a character from the game according to data received from the server."""
+        if side == Game.ally_team:
+            self.allies.sprites()[int(index)].kill()
+        else:
+            self.enemies.sprites()[int(index)].kill()
+
+    def __handle_recv_socket_error(self):
+        """When there's a socket error on __handle_receiving_updates, this function handles it."""
+        if not self.__recv:
+            return
+        debug_print("Error on receiving.")
+        Game._exit_msg("Communication Error.")
+
+    def __handle_send_socket_error(self):
+        """When there's a socket error on __handle_pressed_online, this function handles it."""
+        if not self.__send:
+            return
+        debug_print("Error on sending.")
+        Game._exit_msg("Communication error.")
 
     @staticmethod
     def _fix_team_image(chars, team):
@@ -312,17 +365,6 @@ class Game(object):
     def get_team_image(team):
         """Updates the image of the character."""
         return pygame.image.load("assets\\" + team + "_player.png").convert_alpha()
-
-    def stop_online_connection(self):
-        """Stops the client from communicating with the server.
-        Call this function when the game stops connection to the server for any reason."""
-        try:
-            if self.__send:
-                self.__send_by_size("DISCONNECT", 32)
-        except socket.error:
-            pass
-        self.__recv = False
-        self.__send = False
 
     def _updatex(self, newx):
         """Returns value of hero's x based on newx and limits of map."""
@@ -506,12 +548,27 @@ class Game(object):
         self.__minimap = pygame.image.load("assets\\" + map_name).convert()
 
     @staticmethod
+    def handle_end_game(msg):
+        """Ends the game in an organized way."""
+        # pygame.quit()
+        Game._exit_msg(msg)
+
+    def stop_online_connection(self):
+        """Stops the client from communicating with the server.
+        Call this function when the game stops connection to the server for any reason."""
+        try:
+            self.server_socket.settimeout(self.timeout)
+            self.__send_by_size("DISCONNECT", 32)
+        except socket.error:
+            pass
+        self.__recv = False
+        self.__send = False
+
+    @staticmethod
     def _exit_msg(msg):
         """Displays the message and waits for Enter press to exit."""
-        print(msg)
         pygame.quit()
-        raw_input("Press Enter to exit.")
-        sys.exit(0)
+        raw_input("%s. Press Enter to exit." % msg)
 
     def quit_func(self):
         """Function to call when quitting pygame"""
