@@ -43,7 +43,7 @@ class Character(pygame.sprite.Sprite):
         since Surface objects cannot be pickled."""
         temp_image = self.image.copy()
         self.image = None
-        pickled = pickle.dumps(self)
+        pickled = pickle.dumps(self, pickle.HIGHEST_PROTOCOL)
         self.image = temp_image
         return pickled
 
