@@ -151,8 +151,8 @@ class Game(object):
         if self.__recvd(7) != "ENEMIES":
             return False
         lst_enemies = pickle.loads(self.__recv_by_size(32))
-        Game._fix_team_image(lst_allies, Game.ally_team)
-        Game._fix_team_image(lst_enemies, Game.enemy_team)
+        Game._fix_team_image(lst_allies, Game.ally_team)    # Since pygame.surface objects cannot be pickled,
+        Game._fix_team_image(lst_enemies, Game.enemy_team)  # Character object are sent without image.
         self.allies = pygame.sprite.OrderedUpdates(*lst_allies)
         self.enemies = pygame.sprite.OrderedUpdates(*lst_enemies)
         if self.__recvd(8) != "HERO POS":
@@ -183,7 +183,7 @@ class Game(object):
         receiver.join()
 
     def utilities(self):
-        """Must be called in a non-ending loop."""
+        """Must be called in a non-ending loop. Recommended to wrap in try and except block of pygame.error."""
         self.update_screen()
         self._handle_events()
 
@@ -193,7 +193,6 @@ class Game(object):
             if event.type == pygame.QUIT:
                 self.stop_online_connection()
                 pygame.quit()
-                # sys.exit(0)
 
     def __handle_pressed_online(self):
         """
@@ -206,7 +205,6 @@ class Game(object):
         cnt = 0
         while self.__send:
             try:
-                # pressed = pygame.key.get_pressed()
                 functional = Game._functional_keys_dict(pygame.key.get_pressed())
                 if functional is not None:    # No need to send if nothing is pressed
                     self.__send_by_size(pickle.dumps(functional, pickle.HIGHEST_PROTOCOL), 32)
@@ -265,8 +263,6 @@ class Game(object):
             raise pygame.error  # End the loop if Player is kicked out of the game.
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
             self.__handle_character_info_online(line)
-        # debug_print("ALLIES:\n", str(self.allies.sprites()))
-        # debug_print("ENEMIES:\n", str(self.enemies.sprites()))
 
     @staticmethod
     def _online_info_check_end(info):
@@ -424,22 +420,29 @@ class Game(object):
         Always returns hero in the list too, in the last place in the list.
         Clears and draws all game attributes on __game_map, returns only the once seen on screen.
         """
-        self.delete_last()
-        outdated = []
+        self.erase_last()
+        outdated = [self._fit_rect(self.hero.rect)]    # Always returns hero's rect.
         sc_top, sc_left, sc_bottom, sc_right = self._get_screen_limits()
         for rect in self.enemies.draw(self.__game_map) + self.allies.draw(self.__game_map):
             if rect.bottom > sc_top and rect.top < sc_bottom and rect.right > sc_left and rect.left < sc_right:
                 self.screen.blit(self.__game_map, self._fit_rect(rect))
                 outdated.append(self._fit_rect(rect))
-        self.__game_map.blit(self.hero.image, self.hero.rect)
-        outdated.append(self._fit_rect(self.hero.rect))
+        self.draw_hero()
         return outdated
 
-    def delete_last(self):
-        """Deletes hero, enemies and allies from __game_map."""
+    def erase_last(self):
+        """erases hero, enemies and allies from __game_map. Does not update/flip the screen."""
         self.allies.clear(self.__game_map, self.__minimap)
         self.enemies.clear(self.__game_map, self.__minimap)
+        self.erase_hero()
+
+    def erase_hero(self):
+        """Erases the hero from __game_map. Does not update/flip the screen."""
         self.__game_map.blit(self.__minimap.subsurface(self.hero.rect), self.hero.rect)
+
+    def draw_hero(self):
+        """Draws the hero to __game_map. Does not update/flip the screen."""
+        self.__game_map.blit(self.hero.image, self.hero.rect)
 
     def _get_screen_limits(self):
         """

@@ -20,8 +20,8 @@
       <file leaf-file-name="pygame_battle_royale.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="52" column="45" lean-forward="true" selection-start-line="52" selection-start-column="45" selection-end-line="52" selection-end-column="45" />
+            <state relative-caret-position="-221">
+              <caret line="27" column="38" lean-forward="true" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -29,8 +29,8 @@
       <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="223">
-              <caret line="186" column="26" selection-start-line="186" selection-start-column="13" selection-end-line="186" selection-end-column="26" />
+            <state relative-caret-position="199">
+              <caret line="185" column="111" lean-forward="true" selection-start-line="185" selection-start-column="111" selection-end-line="185" selection-end-column="111" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -41,8 +41,8 @@
       <file leaf-file-name="battle_royale_server.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="54" column="31" lean-forward="true" selection-start-line="54" selection-start-column="31" selection-end-line="54" selection-end-column="31" />
+            <state relative-caret-position="429">
+              <caret line="53" column="88" lean-forward="true" selection-start-line="53" selection-start-column="88" selection-end-line="53" selection-end-column="88" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -53,8 +53,8 @@
       <file leaf-file-name="server_game.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="502">
-              <caret line="481" column="73" lean-forward="true" selection-start-line="481" selection-start-column="73" selection-end-line="481" selection-end-column="73" />
+            <state relative-caret-position="509">
+              <caret line="41" column="53" lean-forward="true" selection-start-line="41" selection-start-column="53" selection-end-line="41" selection-end-column="53" />
             </state>
           </provider>
         </entry>
@@ -70,12 +70,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Thread</find>
-      <find>_handle_events</find>
-      <find>Could not connect</find>
-      <find>could_not_connect</find>
-      <find>connect_to_client</find>
-      <find>Unable to connect to server.</find>
       <find>stop_online_connection</find>
       <find>receive_player_data</find>
       <find>handle_player_data</find>
@@ -86,11 +80,9 @@
       <find>kill</find>
       <find>handle_end_game</find>
       <find>_exit_msg</find>
-      <find>Disconnected</find>
       <find>init_player_client</find>
       <find>__hero</find>
       <find>pickle</find>
-      <find>get_state</find>
       <find>pickle.dumps</find>
       <find>__game_state</find>
       <find>GFJKJGJGJ</find>
@@ -100,11 +92,20 @@
       <find>get_player_attributes</find>
       <find>update_screen</find>
       <find>Error</find>
+      <find>debug_print</find>
+      <find>_fix_team_image</find>
+      <find>Disconnected</find>
+      <find>REMOVE</find>
+      <find>add</find>
+      <find>__update_game_attributes</find>
+      <find>get_state</find>
+      <find>COLLISION_DICT</find>
     </findStrings>
     <replaceStrings>
       <replace>__game_map</replace>
       <replace>self.__hero</replace>
       <replace>hero</replace>
+      <replace>COLLISION_SET</replace>
     </replaceStrings>
   </component>
   <component name="FindManager">
@@ -117,10 +118,11 @@
       <list>
         <option value="$PROJECT_DIR$/../PyGameServer/function.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/function.py" />
-        <option value="$PROJECT_DIR$/../PyGameServer/modules/character.py" />
-        <option value="$PROJECT_DIR$/modules/game.py" />
         <option value="$PROJECT_DIR$/pygame_battle_royale.py" />
+        <option value="$PROJECT_DIR$/modules/game.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/battle_royale_server.py" />
+        <option value="$PROJECT_DIR$/modules/character.py" />
+        <option value="$PROJECT_DIR$/../PyGameServer/modules/character.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/server_game.py" />
       </list>
     </option>
@@ -139,6 +141,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -146,11 +149,15 @@
               <item name="PyGame" type="b2602c69:ProjectViewProjectNode" />
               <item name="PyGame" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="PyGame" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PyGame" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -404,8 +411,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.pygame_battle_royale" />
         <item itemvalue="Python.battle_royale_server" />
+        <item itemvalue="Python.pygame_battle_royale" />
         <item itemvalue="Python.server_game" />
         <item itemvalue="Python.pygame_hello_world" />
         <item itemvalue="Python.game" />
@@ -459,22 +466,22 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.101728395" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32929292" />
-      <window_info anchor="bottom" id="Version Control" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32929292" />
       <window_info anchor="bottom" id="Changes" order="7" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Python Console" order="11" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.3272727" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Python Console" order="11" />
+      <window_info anchor="bottom" id="Version Control" order="10" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -491,6 +498,23 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="901">
+          <caret line="54" column="31" lean-forward="true" selection-start-line="54" selection-start-column="31" selection-end-line="54" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7990">
+          <caret line="481" column="73" lean-forward="true" selection-start-line="481" selection-start-column="73" selection-end-line="481" selection-end-column="73" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1207">
@@ -828,17 +852,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/character.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="354">
-          <caret line="38" column="87" lean-forward="true" selection-start-line="38" selection-start-column="87" selection-end-line="38" selection-end-column="87" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="186" column="26" selection-start-line="186" selection-start-column="13" selection-end-line="186" selection-end-column="26" />
+        <state relative-caret-position="199">
+          <caret line="185" column="111" lean-forward="true" selection-start-line="185" selection-start-column="111" selection-end-line="185" selection-end-column="111" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
@@ -847,25 +864,42 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="52" column="45" lean-forward="true" selection-start-line="52" selection-start-column="45" selection-end-line="52" selection-end-column="45" />
+        <state relative-caret-position="-221">
+          <caret line="27" column="38" lean-forward="true" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="54" column="31" lean-forward="true" selection-start-line="54" selection-start-column="31" selection-end-line="54" selection-end-column="31" />
+        <state relative-caret-position="429">
+          <caret line="53" column="88" lean-forward="true" selection-start-line="53" selection-start-column="88" selection-end-line="53" selection-end-column="88" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/modules/character.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="566">
+          <caret line="46" column="31" lean-forward="true" selection-start-line="46" selection-start-column="31" selection-end-line="46" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/character.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="365">
+          <caret line="45" column="60" selection-start-line="45" selection-start-column="60" selection-end-line="45" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="502">
-          <caret line="481" column="73" lean-forward="true" selection-start-line="481" selection-start-column="73" selection-end-line="481" selection-end-column="73" />
+        <state relative-caret-position="509">
+          <caret line="41" column="53" lean-forward="true" selection-start-line="41" selection-start-column="53" selection-end-line="41" selection-end-column="53" />
         </state>
       </provider>
     </entry>

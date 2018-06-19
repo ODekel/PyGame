@@ -6,9 +6,11 @@
       <w>blit</w>
       <w>blitted</w>
       <w>blitting</w>
+      <w>brhr</w>
       <w>centerx</w>
       <w>centery</w>
       <w>charmap</w>
+      <w>colliders</w>
       <w>cooldown</w>
       <w>gamemap</w>
       <w>getdefaulttimeout</w>

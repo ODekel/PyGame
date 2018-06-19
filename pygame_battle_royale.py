@@ -49,7 +49,10 @@ def game_with_game_class(ip):
     my_game.connect_to_server()
     threading.Thread(target=my_game.handle_movement_online).start()
     while not my_game.exit:
-        my_game.utilities()
+        try:
+            my_game.utilities()
+        except pygame.error:
+            pass    # Game ended.
         pygame.time.Clock().tick(my_game.fps)
     print("KGKGKGKGK")
     for t in threading.enumerate():
