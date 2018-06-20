@@ -18,6 +18,9 @@ class Game(object):
     FUNCTION_KEYS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
     SERVER_KICK_MSG = "PLAYER KICKED"
 
+    server_character = "SERVER SIDE"
+    client_character = "CLIENT SIDE"
+
     def __init__(self, screen, game_map, hero, allies, enemies, server_socket=None):
         """Create a new game object.
         screen is the surface which is used to display the game on screen.
@@ -137,7 +140,7 @@ class Game(object):
         """
         try:
             self.sync_with_server()
-            self.__info_for_server()
+            self.__info_for_server(Game.server_character)
         except socket.error:
             return False
         return True
@@ -286,32 +289,6 @@ class Game(object):
             self.__add_character(parts[1], "~".join(parts[2:]))
         elif action == "REMOVE":
             self.__remove_character(*parts[1:])
-
-    # def __handle_character_info_online(self, group, pos, map_pos):
-    #     """Changes the Game class attributes according to the info about the character received from the server."""
-    #     # Always receives the center of the rect of the character it is repositioning.
-    #     if group == "HERO":
-    #         self.hero.rect.center = pickle.loads(map_pos)
-    #     elif group == "ALLIES":
-    #         if isint(pos):
-    #             if map_pos == "REMOVE":
-    #                 self.allies.sprites()[int(pos)].kill()
-    #             else:
-    #                 self.allies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-    #         elif pos == "ADD":
-    #             char = pickle.loads(map_pos)
-    #             char.image = Game.get_team_image(Game.ally_team)
-    #             self.allies.add(char)
-    #     elif group == "ENEMIES":
-    #         if isint(pos):
-    #             if map_pos == "REMOVE":
-    #                 self.enemies.sprites()[int(pos)].kill()
-    #             else:
-    #                 self.enemies.sprites()[int(pos)].rect.center = pickle.loads(map_pos)
-    #         elif pos == "ADD":
-    #             char = pickle.loads(map_pos)
-    #             char.image = Game.get_team_image(Game.ally_team)
-    #             self.enemies.add(char)
 
     def __change_character_attribute(self, side, index, attribute, pickled_value):
         """Change a character's attribute according to data received from the server."""
@@ -494,17 +471,18 @@ class Game(object):
         # self.server_socket, server_addr = temp_sock.accept()
         return self.server_socket
 
-    def __info_for_server(self):
+    def __info_for_server(self, character_side):
         """
         self.server_socket must be a valid game socket.
         :return: True if succeeded, False otherwise.
         """
         try:
-            if self.__recvd(10) == "CHARACTER?":
-                self.__send_by_size(self.hero.pickled_no_image(), 32)
-            else:
-                self.stop_online_connection()
-                return False
+            if character_side == Game.client_character:
+                if self.__recvd(10) == "CHARACTER?":
+                    self.__send_by_size(self.hero.pickled_no_image(), 32)
+                else:
+                    self.stop_online_connection()
+                    return False
             if self.__recvd(5) == "TEAM?":
                 self.__send_by_size("RED", 32)
             else:
@@ -529,6 +507,8 @@ class Game(object):
                 self.stop_online_connection()
                 return False
             self.__get_map_name()
+            if character_side == Game.server_character:
+                self.hero = self.__get_hero_from_server()
             # self.__get_inactive_timeout()
             return True
         except socket.error:
@@ -540,6 +520,13 @@ class Game(object):
         self.__sendd("MAP NAME")
         map_name = self.__recv_by_size(32)
         self._update_map(map_name)
+
+    def __get_hero_from_server(self):
+        """Gets the Character object to be used as hero from the server and returns it."""
+        self.__sendd("CHARACTER")
+        hero = pickle.loads(self.__recv_by_size(32))
+        hero.image = Game.get_team_image(Game.ally_team)
+        return hero
 
     # def __get_inactive_timeout(self):
     #     self.__sendd("INACTIVE TIMEOUT")
@@ -553,7 +540,6 @@ class Game(object):
     @staticmethod
     def handle_end_game(msg):
         """Ends the game in an organized way."""
-        # pygame.quit()
         Game._exit_msg(msg)
 
     def stop_online_connection(self):
@@ -580,26 +566,11 @@ class Game(object):
         pygame.display.quit()
         pygame.quit()
         self.__exit = True
-        # e = Exception
-        # e.message = "System Exiting"
-        # raise e
 
 
 def debug_print(*s):
     if DEBUG:
         print("".join([str(word) for word in s]))
-
-
-def isint(s):
-    """
-    :param s: A string.
-    :return: True is the string represents an int, False otherwise.
-    """
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
 
 
 def get_refresh_rate(device):
