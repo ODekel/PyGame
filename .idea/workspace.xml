@@ -20,8 +20,8 @@
       <file leaf-file-name="pygame_battle_royale.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="799">
-              <caret line="51" column="12" selection-start-line="51" selection-start-column="12" selection-end-line="51" selection-end-column="12" />
+            <state relative-caret-position="561">
+              <caret line="37" column="7" lean-forward="true" selection-start-line="37" selection-start-column="7" selection-end-line="37" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -29,8 +29,8 @@
       <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="423">
-              <caret line="509" column="55" lean-forward="true" selection-start-line="509" selection-start-column="55" selection-end-line="509" selection-end-column="55" />
+            <state relative-caret-position="136">
+              <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -53,8 +53,8 @@
       <file leaf-file-name="server_game.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="239">
-              <caret line="42" column="111" lean-forward="true" selection-start-line="42" selection-start-column="111" selection-end-line="42" selection-end-column="111" />
+            <state relative-caret-position="5563">
+              <caret line="442" column="84" selection-start-line="442" selection-start-column="84" selection-end-line="442" selection-end-column="84" />
             </state>
           </provider>
         </entry>
@@ -70,9 +70,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>init_player_client</find>
-      <find>__hero</find>
-      <find>pickle</find>
       <find>pickle.dumps</find>
       <find>__game_state</find>
       <find>GFJKJGJGJ</find>
@@ -100,6 +97,9 @@
       <find>red_team</find>
       <find>get_team</find>
       <find>property</find>
+      <find>is_event</find>
+      <find>quit_func</find>
+      <find>__info_for_server</find>
     </findStrings>
     <replaceStrings>
       <replace>__game_map</replace>
@@ -119,10 +119,10 @@
       <list>
         <option value="$PROJECT_DIR$/../PyGameServer/function.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/function.py" />
-        <option value="$PROJECT_DIR$/pygame_battle_royale.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/battle_royale_server.py" />
         <option value="$PROJECT_DIR$/modules/character.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/character.py" />
+        <option value="$PROJECT_DIR$/pygame_battle_royale.py" />
         <option value="$PROJECT_DIR$/modules/game.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/server_game.py" />
       </list>
@@ -142,7 +142,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -159,6 +158,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -467,22 +467,22 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.101728395" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32929292" />
+      <window_info anchor="bottom" id="Version Control" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32929292" />
       <window_info anchor="bottom" id="Changes" order="7" />
-      <window_info anchor="bottom" id="Python Console" order="11" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.3272727" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Version Control" order="10" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="11" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -860,13 +860,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="799">
-          <caret line="51" column="12" selection-start-line="51" selection-start-column="12" selection-end-line="51" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/character.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="731">
@@ -876,11 +869,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="509" column="55" lean-forward="true" selection-start-line="509" selection-start-column="55" selection-end-line="509" selection-end-column="55" />
+        <state relative-caret-position="136">
+          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="37" column="7" lean-forward="true" selection-start-line="37" selection-start-column="7" selection-end-line="37" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -896,8 +896,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="42" column="111" lean-forward="true" selection-start-line="42" selection-start-column="111" selection-end-line="42" selection-end-column="111" />
+        <state relative-caret-position="5563">
+          <caret line="442" column="84" selection-start-line="442" selection-start-column="84" selection-end-line="442" selection-end-column="84" />
         </state>
       </provider>
     </entry>

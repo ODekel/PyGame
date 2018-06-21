@@ -6,7 +6,7 @@ import pickle
 import win32api
 
 
-DEBUG = True
+DEBUG = False
 
 
 class Game(object):
@@ -133,14 +133,16 @@ class Game(object):
             newx, newy = self._fix_diagonal_movement(newx, newy)
         return self._updatex(newx), self._updatey(newy)
 
-    def connect_to_server(self):
+    def connect_to_server(self, character_side):
         """
         self.server_socket must be provided. Connects the client to the server and allows to start the game.
+        :param character_side: Character object determined by client or server.
+        Use Game.server_character and Game.client_character to choose.
         :return: True if succeeded, False otherwise.
         """
         try:
             self.sync_with_server()
-            self.__info_for_server(Game.server_character)
+            self.__info_for_server(character_side)
         except socket.error:
             return False
         return True
