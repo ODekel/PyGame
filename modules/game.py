@@ -141,11 +141,23 @@ class Game(object):
         :return: True if succeeded, False otherwise.
         """
         try:
+            self.__waiting_for_players()
             self.sync_with_server()
             self.__info_for_server(character_side)
         except socket.error:
             return False
         return True
+
+    def __waiting_for_players(self):
+        """Handles the communication with the server while it is waiting for all players to connect."""
+        default_timeout = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(self.timeout)
+        if self.server_socket.recv(7) == "WAITING":
+            print("Waiting for other players to connect...")
+            socket.setdefaulttimeout(None)
+            if self.server_socket.recv(8) != "CONTINUE":
+                return False
+        socket.setdefaulttimeout(default_timeout)
 
     def _get_game_state(self):
         """Get the state of the game when connecting to server.
