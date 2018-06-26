@@ -155,9 +155,29 @@ class Game(object):
         if self.server_socket.recv(7) == "WAITING":
             print("Waiting for other players to connect...")
             socket.setdefaulttimeout(None)
-            if self.server_socket.recv(8) != "CONTINUE":
-                return False
+            if not self.server_socket.recv(8) == "CONTINUE":
+                raise (socket.error, "Server did not answer correctly to the request.")
         socket.setdefaulttimeout(default_timeout)
+
+    def _wait_for_string(self, s):
+        """
+        Waits for string from server, while making sure pygame doesn't crash.
+        :param s: The string to wait for.
+        :return: True if received continue, False otherwise.
+        """
+        default_timeout = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(self.timeout)
+        did_get_string = None
+        while did_get_string is None:    # Doesn't really run forever...
+            try:
+                if self.server_socket.recv(len(s)) == s:
+                    did_get_string = True
+                else:
+                    did_get_string = False
+            except socket.timeout:
+                self.utilities()    # Make sure pygame doesn't crash while the server is waiting for players to connect.
+        socket.setdefaulttimeout(default_timeout)
+        return did_get_string
 
     def _get_game_state(self):
         """Get the state of the game when connecting to server.
