@@ -216,12 +216,11 @@ class Game(object):
         sender.start()
         receiver.start()
         debug_print("HANDLER @")
-        sender.join()
-        receiver.join()
 
     def utilities(self):
         """Must be called in a non-ending loop. Recommended to wrap in try and except block of pygame.error."""
-        self.update_screen()
+        if self.server_socket is None or (self.__send or self.__recv):
+            self.update_screen()
         self._handle_events()
 
     def _handle_events(self):
@@ -296,18 +295,17 @@ class Game(object):
 
     def _handle_online_info(self, info):
         """Handles the info received from he server."""
-        if Game._online_info_check_end(info):
+        if self._online_info_check_end(info):
             raise pygame.error  # End the loop if Player is kicked out of the game.
         for line in [line for line in info.split("\n\n") if line != ""]:  # 2 newlines in a row separate each line.
             self.__handle_character_info_online(line)
 
-    @staticmethod
-    def _online_info_check_end(info):
+    def _online_info_check_end(self, info):
         """Checked if the server ended the game/kicked the player, and handles it.
         Returns True if Player was kicked from the server, False otherwise, or if error syntax is wrong."""
         try:
             if info[:len(Game.SERVER_KICK_MSG)] == Game.SERVER_KICK_MSG:    # Server kicked player.
-                Game.handle_end_game(info.split("~")[1])
+                self.handle_end_game(info.split("~")[1])
                 return True
         except IndexError:
             return False
@@ -571,10 +569,19 @@ class Game(object):
         self.__game_map = pygame.image.load("assets\\" + map_name).convert()
         self.__minimap = pygame.image.load("assets\\" + map_name).convert()
 
-    @staticmethod
-    def handle_end_game(msg):
+    def _endgame_message(self, msg, color=pygame.Color(255, 0, 0)):
+        """Print msg to the pygame screen."""
+        pygame.font.init()
+        size = (self.screen.get_width() / len(msg)) * 2    # I found that this about fills the screen.
+        text = pygame.font.SysFont(None, size, bold=True).render(msg, True, color)
+        self.screen.blit(text, pygame.Rect(0, 0, 0, 0))
+        pygame.display.flip()
+
+    def handle_end_game(self, msg):
         """Ends the game in an organized way."""
-        Game._exit_msg(msg)
+        self.stop_online_connection()
+        print(msg)
+        self._endgame_message(msg)
 
     def stop_online_connection(self):
         """Stops the client from communicating with the server.
