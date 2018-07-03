@@ -7,6 +7,7 @@ character = imp.load_source("character", "modules\\character.py")
 Character = character.Character
 game = imp.load_source("game", "modules\\game.py")
 Game = game.Game
+Sock = imp.load_source("game_sock", "modules\\game_sock.py").Sock
 
 
 RESOLUTION = (1280, 720)
@@ -19,7 +20,7 @@ PORT = 5233
 def main():
     ip = raw_input("Server IP: ")
     # ip = "localhost"  # For Debugging
-    server = socket.socket()
+    server = Sock()
     try_connect(server, ip, PORT)
     screen = start_pygame(RESOLUTION, FLAGS, DEPTH, CAPTION)
     my_game = start_game_class(screen, server)

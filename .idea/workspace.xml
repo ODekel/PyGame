@@ -20,8 +20,11 @@
       <file leaf-file-name="pygame_battle_royale.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret line="4" column="16" lean-forward="true" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+            <state relative-caret-position="102">
+              <caret line="9" column="65" selection-start-line="9" selection-start-column="65" selection-end-line="9" selection-end-column="65" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -29,8 +32,8 @@
       <file leaf-file-name="game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8789">
-              <caret line="522" column="40" selection-start-line="522" selection-start-column="40" selection-end-line="522" selection-end-column="40" />
+            <state relative-caret-position="325">
+              <caret line="442" column="46" lean-forward="true" selection-start-line="442" selection-start-column="46" selection-end-line="442" selection-end-column="46" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -41,7 +44,7 @@
       <file leaf-file-name="battle_royale_server.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="449">
+            <state relative-caret-position="629">
               <caret line="37" column="81" selection-start-line="37" selection-start-column="81" selection-end-line="37" selection-end-column="81" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
@@ -50,11 +53,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="server_game.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="server_game.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="233" column="78" lean-forward="true" selection-start-line="233" selection-start-column="78" selection-end-line="233" selection-end-column="78" />
+            <state relative-caret-position="410">
+              <caret line="191" lean-forward="true" selection-start-line="191" selection-end-line="191" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="game_sock.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/game_sock.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="72" lean-forward="true" selection-start-line="15" selection-start-column="72" selection-end-line="15" selection-end-column="72" />
             </state>
           </provider>
         </entry>
@@ -70,14 +85,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_fix_team_image</find>
-      <find>Disconnected</find>
-      <find>REMOVE</find>
-      <find>add</find>
-      <find>__update_game_attributes</find>
-      <find>get_state</find>
-      <find>COLLISION_DICT</find>
-      <find>assets\\player.brhr</find>
       <find>assets/player.brhr</find>
       <find>PLAYER KICKED</find>
       <find>SERVER_KICK_MSG</find>
@@ -100,6 +107,14 @@
       <find>utili</find>
       <find>continue</find>
       <find>with open</find>
+      <find>recv_by_size</find>
+      <find>recv_by_size(self</find>
+      <find>send</find>
+      <find>recv</find>
+      <find>socket</find>
+      <find>socket.socket</find>
+      <find>sendall</find>
+      <find>__sock</find>
     </findStrings>
     <replaceStrings>
       <replace>__game_map</replace>
@@ -117,9 +132,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/modules/game.py" />
-        <option value="$PROJECT_DIR$/pygame_battle_royale.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/battle_royale_server.py" />
+        <option value="$PROJECT_DIR$/pygame_battle_royale.py" />
+        <option value="$PROJECT_DIR$/modules/game_sock.py" />
+        <option value="$PROJECT_DIR$/modules/game.py" />
         <option value="$PROJECT_DIR$/../PyGameServer/modules/server_game.py" />
       </list>
     </option>
@@ -138,7 +154,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -155,6 +170,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -179,7 +195,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.battle_royale_server">
+  <component name="RunManager" selected="Python.pygame_battle_royale">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -408,8 +424,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.battle_royale_server" />
         <item itemvalue="Python.pygame_battle_royale" />
+        <item itemvalue="Python.battle_royale_server" />
         <item itemvalue="Python.server_game" />
         <item itemvalue="Python.pygame_hello_world" />
         <item itemvalue="Python.game" />
@@ -475,6 +491,46 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="4" column="16" lean-forward="true" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8789">
+          <caret line="522" column="40" selection-start-line="522" selection-start-column="40" selection-end-line="522" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="37" column="81" selection-start-line="37" selection-start-column="81" selection-end-line="37" selection-end-column="81" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3774">
+          <caret line="233" column="78" lean-forward="true" selection-start-line="233" selection-start-column="78" selection-end-line="233" selection-end-column="78" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -768,26 +824,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/game.py">
+    <entry file="file://$PROJECT_DIR$/modules/character.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8789">
-          <caret line="522" column="40" selection-start-line="522" selection-start-column="40" selection-end-line="522" selection-end-column="40" />
+        <state>
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../Skillz/AnavoomPir.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/pygame_battle_royale.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="4" column="16" lean-forward="true" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        <state relative-caret-position="102">
+          <caret line="9" column="65" selection-start-line="9" selection-start-column="65" selection-end-line="9" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="442" column="46" lean-forward="true" selection-start-line="442" selection-start-column="46" selection-end-line="442" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/battle_royale_server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="449">
+        <state relative-caret-position="629">
           <caret line="37" column="81" selection-start-line="37" selection-start-column="81" selection-end-line="37" selection-end-column="81" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
@@ -797,8 +868,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../PyGameServer/modules/server_game.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="233" column="78" lean-forward="true" selection-start-line="233" selection-start-column="78" selection-end-line="233" selection-end-column="78" />
+        <state relative-caret-position="410">
+          <caret line="191" lean-forward="true" selection-start-line="191" selection-end-line="191" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/game_sock.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="72" lean-forward="true" selection-start-line="15" selection-start-column="72" selection-end-line="15" selection-end-column="72" />
         </state>
       </provider>
     </entry>

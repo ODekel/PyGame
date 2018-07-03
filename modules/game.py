@@ -4,6 +4,8 @@ import socket
 import threading
 import pickle
 import win32api
+import imp
+Sock = imp.load_source("game_sock", "modules\\game_sock.py").Sock
 
 
 DEBUG = False
@@ -31,7 +33,7 @@ class Game(object):
         containing all the allies and enemies of the hero respectively.
         self.fps is an automatically calculated refresh rate of the screen (might not work for multi-screen setups).
         You can change it as you like or not use it at all by passing vsync=False to update_screen.
-        server_socket is the socket of the server for online games.
+        server_socket is the Sock of the server for online games.
         If provided, game_map might change according to the server."""
         self.screen = screen
         self.__game_map = pygame.image.load(game_map).convert()
@@ -56,53 +58,6 @@ class Game(object):
     def exit(self):
         """If True, program should exit."""
         return self.__exit
-
-    def __sendd(self, s):
-        """
-        Sends the string to the client.
-        :param s: A string to send to the client.
-        :return: None.
-        """
-        self.server_socket.sendall(s)
-
-    def __send_by_size(self, s, header_size):
-        """
-        Sends by size to the client.
-        :param s: A string to send to the client.
-        :param header_size: The size (in bytes) of the header.
-        :return: None.
-        """
-        self.server_socket.sendall(str(len(s)).zfill(header_size))
-        self.server_socket.sendall(s)
-
-    def __recvd(self, size):
-        """
-        Receive a string from the client.
-        :param size: The size (in bytes) to receive. Max.
-        :return: The string received.
-        """
-        return self.server_socket.recv(size)
-
-    def __recv_by_size(self, header_size):
-        """
-        Receive by size a string from the client.
-        If an empty string is received (ie, the other side disconnected), an empty string will be returned.
-        :param header_size: The size (in bytes) of the header.
-        :return: The string received.
-        """
-        str_size = ""
-        str_size += self.server_socket.recv(header_size)
-        if str_size == "":
-            return ""
-
-        while len(str_size) < header_size:
-            str_size += self.server_socket.recv(header_size - len(str_size))
-        size = int(str_size)
-
-        data = ""
-        while len(data) < size:
-            data += self.server_socket.recv(size - len(data))
-        return data
 
     def handle_user_input(self):
         """Handles the used input for all keyboard, mouse and other keys. Changes the x and y of hero.rect.
@@ -152,10 +107,10 @@ class Game(object):
         """Handles the communication with the server while it is waiting for all players to connect."""
         default_timeout = socket.getdefaulttimeout()
         socket.setdefaulttimeout(self.timeout)
-        if self.server_socket.recv(7) == "WAITING":
+        if self.server_socket.recv_by_size() == "WAITING":
             print("Waiting for other players to connect...")
             socket.setdefaulttimeout(None)
-            if not self.server_socket.recv(8) == "CONTINUE":
+            if not self.server_socket.recv_by_size() == "CONTINUE":
                 raise (socket.error, "Server did not answer correctly to the request.")
         socket.setdefaulttimeout(default_timeout)
 
@@ -170,7 +125,7 @@ class Game(object):
         did_get_string = None
         while did_get_string is None:    # Doesn't really run forever...
             try:
-                if self.server_socket.recv(len(s)) == s:
+                if self.server_socket.recv_by_size() == s:
                     did_get_string = True
                 else:
                     did_get_string = False
@@ -182,20 +137,20 @@ class Game(object):
     def _get_game_state(self):
         """Get the state of the game when connecting to server.
         Returns True if succeeded, False otherwise."""
-        if self.__recvd(6) != "ALLIES":
+        if self.server_socket.recv_by_size() != "ALLIES":
             return False
-        lst_allies = pickle.loads(self.__recv_by_size(32))
-        if self.__recvd(7) != "ENEMIES":
+        lst_allies = pickle.loads(self.server_socket.recv_by_size())
+        if self.server_socket.recv_by_size() != "ENEMIES":
             return False
-        lst_enemies = pickle.loads(self.__recv_by_size(32))
+        lst_enemies = pickle.loads(self.server_socket.recv_by_size())
         Game._fix_team_image(lst_allies, Game.ally_team)    # Since pygame.surface objects cannot be pickled,
         Game._fix_team_image(lst_enemies, Game.enemy_team)  # Character object are sent without image.
         self.allies = pygame.sprite.OrderedUpdates(*lst_allies)
         self.enemies = pygame.sprite.OrderedUpdates(*lst_enemies)
-        if self.__recvd(8) != "HERO POS":
+        if self.server_socket.recv_by_size() != "HERO POS":
             return False
         try:
-            self.hero = self.allies.sprites()[int(self.__recv_by_size(32))]
+            self.hero = self.allies.sprites()[int(self.server_socket.recv_by_size())]
         except ValueError:
             return False
         return True
@@ -243,7 +198,7 @@ class Game(object):
             try:
                 functional = Game._functional_keys_dict(pygame.key.get_pressed())
                 if functional is not None:    # No need to send if nothing is pressed
-                    self.__send_by_size(pickle.dumps(functional, pickle.HIGHEST_PROTOCOL), 32)
+                    self.server_socket.send_by_size(pickle.dumps(functional, pickle.HIGHEST_PROTOCOL))
                     debug_print("sent: ", str(cnt))
                     cnt += 1
             except socket.timeout:
@@ -276,7 +231,7 @@ class Game(object):
         cnt = 0
         while self.__recv:
             try:
-                info = self.__recv_by_size(32)
+                info = self.server_socket.recv_by_size()
                 debug_print("recv: ", str(cnt))
                 debug_print(info)
                 cnt += 1
@@ -474,13 +429,13 @@ class Game(object):
     def sync_with_server(self):
         """Connect to the game's server using the sock provided,
         which must already be TCP connected to the server connection port.
-        Returns a socket.socket object that is TCP connected to the game server."""
+        Returns a Sock object that is TCP connected to the game server."""
         # self.server_socket.settimeout(self.timeout)
         try:
-            if self.server_socket.recv(11) != "GAME SERVER":
+            if self.server_socket.recv_by_size() != "GAME SERVER":
                 raise socket.error
-            self.server_socket.sendall("GAME CLIENT")
-            connect = self.server_socket.recv(32).split(" ")
+            self.server_socket.send_by_size("GAME CLIENT")
+            connect = self.server_socket.recv_by_size().split(" ")
             if connect[0] != "CONNECTED":
                 raise socket.error
             if int(connect[1]) != self.server_socket.getpeername()[1]:
@@ -494,10 +449,10 @@ class Game(object):
         """Connects to a new server if sync_with_server needs it."""
         server_addr = self.server_socket.getpeername()
         self.server_socket.close()
-        self.server_socket = socket.socket()
+        self.server_socket = Sock()
         self.server_socket.connect((server_addr[0], new_port))
         # self.server_socket.close()
-        # temp_sock = socket.socket()
+        # temp_sock = Sock()
         # temp_sock.bind(("0.0.0.0", new_port))
         # temp_sock.listen(0)
         # self.server_socket, server_addr = temp_sock.accept()
@@ -510,32 +465,32 @@ class Game(object):
         """
         try:
             if character_side == Game.client_character:
-                if self.__recvd(10) == "CHARACTER?":
-                    self.__send_by_size(self.hero.pickled_no_image(), 32)
+                if self.server_socket.recv_by_size() == "CHARACTER?":
+                    self.server_socket.send_by_size(self.hero.pickled_no_image())
                 else:
                     self.stop_online_connection()
                     return False
-            if self.__recvd(5) == "TEAM?":
-                self.__send_by_size("RED", 32)
+            if self.server_socket.recv_by_size() == "TEAM?":
+                self.server_socket.send_by_size("RED")
             else:
                 self.stop_online_connection()
                 return False
-            if self.__recvd(4) == "FPS?":
-                self.__send_by_size(str(self.fps), 32)
+            if self.server_socket.recv_by_size() == "FPS?":
+                self.server_socket.send_by_size(str(self.fps))
             else:
                 self.stop_online_connection()
                 return False
-            if self.__recvd(16) == "RESOLUTION WIDTH":
-                self.__send_by_size(str(self.screen.get_width()), 32)
+            if self.server_socket.recv_by_size() == "RESOLUTION WIDTH":
+                self.server_socket.send_by_size(str(self.screen.get_width()))
             else:
                 self.stop_online_connection()
                 return False
-            if self.__recvd(17) == "RESOLUTION HEIGHT":
-                self.__send_by_size(str(self.screen.get_height()), 32)
+            if self.server_socket.recv_by_size() == "RESOLUTION HEIGHT":
+                self.server_socket.send_by_size(str(self.screen.get_height()))
             else:
                 self.stop_online_connection()
                 return False
-            if not self.__recvd(6) == "OK END":
+            if not self.server_socket.recv_by_size() == "OK END":
                 self.stop_online_connection()
                 return False
             self.__get_map_name()
@@ -549,20 +504,20 @@ class Game(object):
 
     def __get_map_name(self):
         """Part of the info_for_server method, initializes the map."""
-        self.__sendd("MAP NAME")
-        map_name = self.__recv_by_size(32)
+        self.server_socket.send_by_size("MAP NAME")
+        map_name = self.server_socket.recv_by_size()
         self._update_map(map_name)
 
     def __get_hero_from_server(self):
         """Gets the Character object to be used as hero from the server and returns it."""
-        self.__sendd("CHARACTER")
-        hero = pickle.loads(self.__recv_by_size(32))
+        self.server_socket.send_by_size("CHARACTER")
+        hero = pickle.loads(self.server_socket.recv_by_size())
         hero.image = Game.get_team_image(Game.ally_team)
         return hero
 
     # def __get_inactive_timeout(self):
     #     self.__sendd("INACTIVE TIMEOUT")
-    #     self.__inactive_timeout = self.__recv_by_size(32)
+    #     self.__inactive_timeout = self.server_socket.recv_by_size()
 
     def _update_map(self, map_name):
         """Updates the map of the game from 'assets'."""
@@ -588,7 +543,7 @@ class Game(object):
         Call this function when the game stops connection to the server for any reason."""
         try:
             self.server_socket.settimeout(self.timeout)
-            self.__send_by_size("DISCONNECT", 32)
+            self.server_socket.send_by_size("DISCONNECT")
         except socket.error:
             pass
         self.__recv = False
