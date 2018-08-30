@@ -44,5 +44,4 @@ class Sock(socket.socket):
     def send_by_size(self, s):
         """Sends by size (with a preprogrammed header size).
         The other side can use recv_by_size to receive the data."""
-        self.sendall(str(len(s)).zfill(HEADER_SIZE))
-        self.sendall(s)
+        self.sendall(str(len(s)).zfill(HEADER_SIZE) + s)
